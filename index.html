@@ -36,7 +36,6 @@
         
         <!-- Branding Left -->
         <a href="https://youtube.com/@poordogy-c1p?si=Dkr-eM6oV0PYfsEl" target="_blank" class="flex items-center gap-4 group">
-            <!-- LOGO INCREASED SIZE (w-[72px] is exactly 1.5x of previous w-12) -->
             <img src="https://i.ibb.co/vxvYXs9h/IMG-20251126-173909.jpg" 
                  alt="Poor Dogy Logo" 
                  class="w-[72px] h-[72px] rounded-full object-cover border-4 border-red-50 group-hover:border-red-500 transition-colors shadow-sm">
@@ -56,6 +55,10 @@
 
     <!-- MAIN CONTENT -->
     <main class="flex-grow w-full max-w-6xl mx-auto p-4 md:p-8 flex flex-col items-center">
+
+        <!-- ========================================== -->
+        <!-- SECTION 1: URL EXTRACTOR (Original Code)   -->
+        <!-- ========================================== -->
 
         <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6 text-center mt-4">Extract Tags, Keywords & Hashtags</h2>
 
@@ -92,6 +95,12 @@
                                 <span>Visit Poor Dogy</span>
                             </div>
                         </a>
+                    </div>
+
+                    <!-- Date & Time (NEW) -->
+                    <div class="bg-blue-50 p-5 rounded-2xl shadow-sm border border-blue-100">
+                        <span class="text-xs font-bold text-blue-500 uppercase tracking-wider block mb-1">Published On</span>
+                        <p id="resDate" class="text-blue-900 font-bold text-md">Loading...</p>
                     </div>
 
                     <!-- Channel Keywords -->
@@ -135,7 +144,7 @@
                     </div>
 
                     <!-- Description -->
-                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200 relative">
+                     <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200 relative">
                         <div class="flex justify-between items-center mb-3">
                             <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Description</span>
                             <button onclick="copyText(document.getElementById('resDesc').innerText, this)" class="bg-gray-100 hover:bg-blue-600 hover:text-white text-gray-600 px-3 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-2">
@@ -149,35 +158,74 @@
 
                 </div>
             </div>
+        </div>
 
-            <!-- RESULT FOOTER (ONLY VISIBLE WHEN RESULTS ARE SHOWN) -->
-            <div class="w-full bg-white rounded-3xl border border-gray-200 p-6 flex flex-col md:flex-row justify-between items-center gap-6 shadow-sm">
-                <!-- Footer Branding -->
-                <a href="https://youtube.com/@poordogy-c1p?si=Dkr-eM6oV0PYfsEl" target="_blank" class="flex items-center gap-4 group">
-                     <!-- LOGO INCREASED SIZE in Footer as well -->
-                    <img src="https://i.ibb.co/vxvYXs9h/IMG-20251126-173909.jpg" 
-                        alt="Poor Dogy Logo" 
-                        class="w-[72px] h-[72px] rounded-full object-cover border-4 border-red-50 group-hover:border-red-500 transition-colors shadow-sm">
+
+        <!-- ================================================== -->
+        <!-- SECTION 2: NEW TRENDING TOPIC FINDER               -->
+        <!-- ================================================== -->
+        
+        <div class="w-full my-8 border-t border-gray-200"></div>
+
+        <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6 text-center">Find Trending Topics (Last 24h)</h2>
+        <p class="text-center text-sm text-gray-500 mb-6 -mt-4">Filters: Uploaded < 24h • Views > 20k • Max 10 Results</p>
+
+        <!-- TOPIC INPUT AREA -->
+        <div class="w-full max-w-2xl bg-white p-2 rounded-2xl shadow-lg border border-gray-100 mb-8 flex items-center gap-2 mx-auto">
+            <div class="pl-4 text-gray-400"><i class="fas fa-fire"></i></div>
+            <input type="text" id="topicInput" class="w-full p-4 outline-none text-gray-700 bg-transparent text-lg" placeholder="Enter topic (e.g. Minecraft, Cooking, AI)..." onkeypress="if(event.key === 'Enter') extractTopic()">
+            <button onclick="extractTopic()" class="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-xl font-medium transition-all flex items-center gap-2 shadow-md">
+                <span>Find Trends</span>
+                <div id="loaderTopic" class="loader"></div>
+            </button>
+        </div>
+
+        <!-- TOPIC ERROR ALERT -->
+        <div id="topicErrorAlert" class="hidden w-full max-w-2xl bg-red-50 border-l-4 border-red-500 p-4 rounded-r shadow-sm mb-6 mx-auto">
+            <p id="topicErrorMsg" class="text-sm font-medium text-red-700">Error message.</p>
+        </div>
+
+        <!-- TOPIC RESULTS AREA -->
+        <div id="topicResultsArea" class="hidden w-full fade-in pb-10 space-y-8">
+            
+            <!-- 1. AGGREGATED INSIGHTS (Summary Card) -->
+            <div class="bg-gradient-to-r from-gray-900 to-gray-800 rounded-3xl p-6 md:p-8 text-white shadow-lg relative overflow-hidden">
+                <div class="absolute top-0 right-0 p-8 opacity-10 text-9xl"><i class="fas fa-chart-line"></i></div>
+                <h3 class="text-xl font-bold mb-6 flex items-center gap-2 relative z-10"><i class="fas fa-bolt text-yellow-400"></i> Top Trending Keywords & Tags</h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 relative z-10">
+                    <!-- Top Tags -->
                     <div>
-                        <h1 class="text-2xl font-bold text-gray-800 leading-none group-hover:text-red-600 transition-colors">Poor Dogy</h1>
-                        <p class="text-sm text-gray-500 font-medium mt-1">Metadata Extractor</p>
+                        <span class="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-2">Most Frequent Tags</span>
+                        <div id="aggTags" class="flex flex-wrap gap-2"></div>
+                        <button onclick="copyText(document.getElementById('hiddenAggTags').value, this)" class="mt-3 text-xs bg-white/10 hover:bg-white/20 px-3 py-1 rounded-lg transition-colors">Copy All Tags</button>
+                        <textarea id="hiddenAggTags" class="hidden"></textarea>
                     </div>
-                </a>
+                    <!-- Top Keywords -->
+                    <div>
+                        <span class="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-2">Trending Keywords (From Titles)</span>
+                        <div id="aggKeywords" class="flex flex-wrap gap-2"></div>
+                        <button onclick="copyText(document.getElementById('hiddenAggKeywords').value, this)" class="mt-3 text-xs bg-white/10 hover:bg-white/20 px-3 py-1 rounded-lg transition-colors">Copy All Keywords</button>
+                         <textarea id="hiddenAggKeywords" class="hidden"></textarea>
+                    </div>
+                </div>
+            </div>
 
-                <!-- Footer Subscribe -->
-                <a href="https://youtube.com/@poordogy-c1p?si=Dkr-eM6oV0PYfsEl" target="_blank" 
-                   class="pulse-btn bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-full font-bold text-sm flex items-center gap-2 transition-transform hover:scale-105 shadow-md">
-                    <i class="fab fa-youtube"></i> Subscribe Now
-                </a>
+            <!-- 2. VIDEO LIST -->
+            <h3 class="text-xl font-bold text-gray-800 px-2 border-l-4 border-red-600 pl-4">Filtered Results (>20k Views)</h3>
+            <div id="videosList" class="grid grid-cols-1 gap-6">
+                <!-- Videos will be injected here via JS -->
             </div>
 
         </div>
+
     </main>
 
     <!-- JS Logic -->
     <script>
         const API_KEY = "AIzaSyB0YK-a7DrGG_eLlHQ1oyqKupu2jaC7cBY";
 
+        // --- PART 1: URL EXTRACTOR LOGIC ---
         const els = {
             input: document.getElementById('urlInput'),
             loader: document.getElementById('loader'),
@@ -186,6 +234,7 @@
             results: document.getElementById('resultsArea'),
             thumb: document.getElementById('resThumbnail'),
             title: document.getElementById('resTitle'),
+            date: document.getElementById('resDate'), // NEW ELEMENT
             videoTags: document.getElementById('resVideoTags'),
             channelKeywords: document.getElementById('resChannelKeywords'),
             hashtags: document.getElementById('resHashtags'),
@@ -207,14 +256,13 @@
             
             const videoId = getVideoId(url);
             if (!videoId) {
-                showError("Invalid URL. Please paste a valid YouTube video link.");
+                showError("Invalid URL. Please paste a valid YouTube video link.", els.errorMsg, els.errorAlert);
                 return;
             }
 
             els.loader.style.display = 'inline-block';
 
             try {
-                // 1. Get Video Details
                 const vidRes = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${videoId}&key=${API_KEY}`);
                 const vidData = await vidRes.json();
 
@@ -224,7 +272,6 @@
                 const video = vidData.items[0];
                 const channelId = video.snippet.channelId;
 
-                // 2. Get Channel Details
                 const chanRes = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=brandingSettings&id=${channelId}&key=${API_KEY}`);
                 const chanData = await chanRes.json();
                 
@@ -240,7 +287,7 @@
                 els.results.classList.remove('hidden');
 
             } catch (err) {
-                showError(err.message);
+                showError(err.message, els.errorMsg, els.errorAlert);
             } finally {
                 els.loader.style.display = 'none';
             }
@@ -251,21 +298,20 @@
             els.title.innerText = s.title;
             els.desc.innerText = s.description;
 
+            // Render Date
+            els.date.innerText = formatFullDateTime(s.publishedAt);
+
             const t = s.thumbnails;
             const highRes = (t.maxres || t.standard || t.high || t.medium || t.default).url;
             els.thumb.src = highRes;
 
             els.videoTags.innerText = (s.tags && s.tags.length > 0) ? s.tags.join(', ') : "No video tags found.";
 
-            // --- IMPROVED KEYWORD PARSING ---
             if (channelKw) {
-                // Extract Quoted Strings or Single Words
-                // Regex: Match anything inside quotes OR anything that isn't whitespace
                 const regex = /"([^"]+)"|([^\s]+)/g;
                 const matches = [];
                 let match;
                 while ((match = regex.exec(channelKw)) !== null) {
-                    // match[1] is quoted, match[2] is unquoted
                     matches.push(match[1] || match[2]);
                 }
                 els.channelKeywords.innerText = matches.join(', ');
@@ -283,25 +329,216 @@
             }
         }
 
+        // --- PART 2: TRENDING TOPIC LOGIC ---
+        
+        const topicEls = {
+            input: document.getElementById('topicInput'),
+            loader: document.getElementById('loaderTopic'),
+            alert: document.getElementById('topicErrorAlert'),
+            msg: document.getElementById('topicErrorMsg'),
+            area: document.getElementById('topicResultsArea'),
+            videoList: document.getElementById('videosList'),
+            aggTags: document.getElementById('aggTags'),
+            aggKeywords: document.getElementById('aggKeywords'),
+            hiddenAggTags: document.getElementById('hiddenAggTags'),
+            hiddenAggKeywords: document.getElementById('hiddenAggKeywords')
+        };
+
+        async function extractTopic() {
+            const topic = topicEls.input.value.trim();
+            if(!topic) return;
+
+            topicEls.alert.classList.add('hidden');
+            topicEls.area.classList.add('hidden');
+            topicEls.loader.style.display = 'inline-block';
+
+            // Calculate Date for "Last 24 Hours"
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            const publishedAfter = yesterday.toISOString();
+
+            try {
+                // 1. Search for videos (Max 50 to allow for filtering)
+                // We ask for 50 items because we are going to filter them. 
+                // Getting just 10 might result in 0 after the "20k views" filter.
+                const searchRes = await fetch(`https://www.googleapis.com/youtube/v3/search?part=id&q=${encodeURIComponent(topic)}&type=video&order=viewCount&publishedAfter=${publishedAfter}&maxResults=50&key=${API_KEY}`);
+                const searchData = await searchRes.json();
+
+                if(searchData.error) throw new Error(searchData.error.message);
+                if(!searchData.items || searchData.items.length === 0) throw new Error("No recent trending videos found for this topic.");
+
+                // 2. Get IDs
+                const videoIds = searchData.items.map(item => item.id.videoId).join(',');
+
+                // 3. Fetch Full Details
+                const videoRes = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics&id=${videoIds}&key=${API_KEY}`);
+                const videoData = await videoRes.json();
+
+                // 4. FILTERING LOGIC
+                // Filter: ViewCount > 20,000
+                const filteredVideos = videoData.items.filter(vid => {
+                    const views = parseInt(vid.statistics.viewCount || 0);
+                    return views > 20000;
+                });
+
+                if(filteredVideos.length === 0) {
+                    throw new Error("Found recent videos, but none had over 20k views. Try a broader topic.");
+                }
+
+                // 5. Slice: Max 10 Results
+                const finalVideos = filteredVideos.slice(0, 10);
+
+                renderTopicResults(finalVideos);
+                topicEls.area.classList.remove('hidden');
+
+            } catch(err) {
+                showError(err.message, topicEls.msg, topicEls.alert);
+            } finally {
+                topicEls.loader.style.display = 'none';
+            }
+        }
+        function renderTopicResults(videos) {
+            topicEls.videoList.innerHTML = '';
+            let allTags = [];
+            let allTitles = "";
+
+            // Loop through filtered videos
+            videos.forEach(vid => {
+                const s = vid.snippet;
+                const stats = vid.statistics;
+                
+                if(s.tags) allTags.push(...s.tags);
+                allTitles += " " + s.title;
+
+                const textScan = (s.title + " " + s.description).toLowerCase();
+                const hashtags = [...new Set(textScan.match(/#[a-z0-9_]+/g) || [])].join(' ');
+
+                // Build Card HTML with Full Date
+                const card = `
+                <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex flex-col md:flex-row gap-5">
+                    <div class="w-full md:w-64 flex-shrink-0">
+                         <div class="aspect-video bg-gray-100 rounded-xl overflow-hidden relative">
+                            <img src="${s.thumbnails.medium.url}" class="w-full h-full object-cover">
+                            <div class="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded font-bold">
+                                <i class="fas fa-eye"></i> ${formatNumber(stats.viewCount)}
+                            </div>
+                         </div>
+                    </div>
+                    <div class="flex-grow min-w-0">
+                        <h4 class="text-lg font-bold text-gray-800 mb-1 line-clamp-2 leading-snug">${s.title}</h4>
+                        <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-500 mb-3">
+                            <span class="font-medium text-gray-700">${s.channelTitle}</span>
+                            <span>•</span>
+                            <span class="bg-green-100 text-green-700 px-2 py-0.5 rounded font-mono">${formatFullDateTime(s.publishedAt)}</span>
+                        </div>
+                        
+                        <!-- Tags Row -->
+                        <div class="mb-3">
+                            <span class="text-[10px] font-bold text-gray-400 uppercase">Tags</span>
+                            <div class="flex items-center gap-2">
+                                <p class="text-xs text-gray-600 truncate font-mono bg-gray-50 p-1 rounded w-full border border-gray-100">${s.tags ? s.tags.slice(0, 10).join(', ') : 'No tags'}</p>
+                                <button onclick="copyText('${s.tags ? s.tags.join(', ') : ''}', this)" class="text-gray-400 hover:text-blue-500"><i class="far fa-copy"></i></button>
+                            </div>
+                        </div>
+
+                        <!-- Hashtags Row -->
+                        <div class="mb-3 ${hashtags ? '' : 'hidden'}">
+                            <span class="text-[10px] font-bold text-blue-400 uppercase">Hashtags</span>
+                            <div class="flex items-center gap-2">
+                                <p class="text-xs text-blue-600 truncate font-medium">${hashtags}</p>
+                                <button onclick="copyText('${hashtags}', this)" class="text-gray-400 hover:text-blue-500"><i class="far fa-copy"></i></button>
+                            </div>
+                        </div>
+
+                        <!-- Description Toggle -->
+                        <details class="text-xs text-gray-500 cursor-pointer group">
+                            <summary class="list-none flex items-center gap-1 font-medium hover:text-gray-700 transition-colors">
+                                <span class="bg-gray-100 px-2 py-1 rounded hover:bg-gray-200">Show Description</span>
+                            </summary>
+                            <div class="mt-2 p-3 bg-gray-50 rounded-lg relative">
+                                <p class="whitespace-pre-wrap max-h-32 overflow-y-auto custom-scroll">${s.description}</p>
+                                <button onclick="copyText(this.previousElementSibling.innerText, this)" class="absolute top-2 right-2 text-gray-400 hover:text-blue-600"><i class="far fa-copy"></i></button>
+                            </div>
+                        </details>
+                    </div>
+                </div>`;
+                topicEls.videoList.insertAdjacentHTML('beforeend', card);
+            });
+
+            analyzeAggregates(allTags, allTitles);
+        }
+
+        function analyzeAggregates(tags, titles) {
+            const tagCounts = {};
+            tags.forEach(t => { 
+                const clean = t.toLowerCase().trim();
+                tagCounts[clean] = (tagCounts[clean] || 0) + 1; 
+            });
+            const sortedTags = Object.entries(tagCounts).sort((a,b) => b[1] - a[1]).slice(0, 15).map(i => i[0]);
+            
+            topicEls.aggTags.innerHTML = sortedTags.map(t => `<span class="bg-white/20 px-2 py-1 rounded text-xs">${t}</span>`).join('');
+            topicEls.hiddenAggTags.value = sortedTags.join(', ');
+
+            const stopWords = ["the","and","or","is","at","in","on","for","with","a","to","of","my","i","this","video","how","what","why"];
+            const words = titles.toLowerCase().replace(/[^\w\s]/gi, '').split(/\s+/);
+            const wordCounts = {};
+            words.forEach(w => {
+                if(w.length > 2 && !stopWords.includes(w)) {
+                    wordCounts[w] = (wordCounts[w] || 0) + 1;
+                }
+            });
+            const sortedKeywords = Object.entries(wordCounts).sort((a,b) => b[1] - a[1]).slice(0, 15).map(i => i[0]);
+
+            topicEls.aggKeywords.innerHTML = sortedKeywords.map(k => `<span class="bg-white/20 px-2 py-1 rounded text-xs border border-white/10">${k}</span>`).join('');
+            topicEls.hiddenAggKeywords.value = sortedKeywords.join(', ');
+        }
+
+        // --- SHARED UTILS ---
+
         async function copyText(text, btn) {
             if (!text || text.includes("No ")) return;
             try {
                 await navigator.clipboard.writeText(text);
                 const originalHtml = btn.innerHTML;
-                btn.innerHTML = '<i class="fas fa-check"></i>';
-                btn.classList.add('bg-green-500', 'text-white', 'border-transparent');
+                const isIcon = btn.innerHTML.includes('<i');
+                if(isIcon) {
+                    btn.innerHTML = '<i class="fas fa-check text-green-500"></i>';
+                } else {
+                    btn.innerText = "Copied!";
+                }
                 setTimeout(() => {
                     btn.innerHTML = originalHtml;
-                    btn.classList.remove('bg-green-500', 'text-white', 'border-transparent');
                 }, 2000);
             } catch (err) { alert("Failed to copy"); }
         }
 
-        function showError(msg) {
-            els.errorMsg.innerText = msg;
-            els.errorAlert.classList.remove('hidden');
+        function showError(msg, textEl, alertEl) {
+            textEl.innerText = msg;
+            alertEl.classList.remove('hidden');
+        }
+
+        function formatNumber(num) {
+            if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+            if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+            return num;
+        }
+
+        // Helper: Formats ISO date to readable string
+        function formatFullDateTime(isoString) {
+            if(!isoString) return "Unknown Date";
+            const date = new Date(isoString);
+            return date.toLocaleString('en-US', {
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric',
+                hour: '2-digit', 
+                minute: '2-digit',
+                hour12: true
+            });
         }
     </script>
 </body>
 </html>
 
+            
+                    
